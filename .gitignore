@@ -1,0 +1,5 @@
+
+*.xml
+*.pb
+*.class
+target/classes/application.properties

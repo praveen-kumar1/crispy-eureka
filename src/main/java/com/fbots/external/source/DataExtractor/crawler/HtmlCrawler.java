@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
@@ -31,6 +29,9 @@ import org.jsoup.safety.Safelist;
 
 
 public class HtmlCrawler extends WebCrawler {
+    private static final String SEED_URL = "https://help.zenoti.com/en/appointments.html";
+    private static final String URL_CONTAINS = "https://help.zenoti.com/en/appointments";
+    private static final String PATH = "/Users/pravekumar/Crawler/";
     private final AtomicInteger numSeenImages;
 
     static Map<String, String> uncrawledUrls = new HashMap<>();
@@ -42,8 +43,7 @@ public class HtmlCrawler extends WebCrawler {
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
-
-        return href.contains("https://help.zenoti.com/en/appointments");
+        return href.contains(URL_CONTAINS);
     }
 
     /**
@@ -81,9 +81,7 @@ public class HtmlCrawler extends WebCrawler {
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
             String fileName = url.replaceAll("[\\/:*?\"<>|]", "_"); // Generate a safe filename
             saveHtmlToFile(html, fileName);
-            dev.langchain4j.data.document.Document
-
-            saveTextTofile(text1, fileName);
+            saveTextTofile(document.body().text(), fileName);
 //            CleanerProperties props = new CleanerProperties();
 //            props.setPruneTags("script");
 //            String result = new HtmlCleaner(props).clean(html).getText().toString();
@@ -120,7 +118,7 @@ public class HtmlCrawler extends WebCrawler {
 
     private void saveHtmlToFile(String htmlContent, String fileName) {
         fileName = fileName + ".html";
-        File file = new File("/Users/pravekumar/Crawler/", fileName);
+        File file = new File(PATH, fileName);
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(htmlContent);
@@ -176,7 +174,7 @@ public class HtmlCrawler extends WebCrawler {
     public static void main(String[] args) throws Exception {
         CrawlConfig config = new CrawlConfig();
 
-        config.setCrawlStorageFolder("/Users/pravekumar/Crawler/");
+        config.setCrawlStorageFolder(PATH);
 
         config.setPolitenessDelay(1000);
 
@@ -207,7 +205,7 @@ public class HtmlCrawler extends WebCrawler {
         // For each crawl, you need to add some seed urls. These are the first
         // URLs that are fetched and then the crawler starts following links
         // which are found in these pages
-        controller.addSeed("https://help.zenoti.com/en/appointments.html");
+        controller.addSeed(SEED_URL);
 
         int numberOfCrawlers = 10;
 
